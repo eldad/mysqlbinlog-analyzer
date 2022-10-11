@@ -64,6 +64,10 @@ impl TryFrom<&str> for BinlogRecord {
                 Regex::new(r"### INSERT INTO `([^`]+)`\.`([^`]+)`$").expect("INSERT regex is invalid");
         }
 
+        if !value.starts_with("### ") {
+            return Err(anyhow::anyhow!("not a IUD operation record"));
+        }
+
         if let Some(captures) = RE_DELETE.captures(value) {
             return binlog_record_from_capture(captures, BinlogOperation::Delete);
         }
@@ -84,6 +88,7 @@ fn main() -> anyhow::Result<()> {
     let binlog_records: Vec<BinlogRecord> = stdin()
         .lines()
         .filter_map(Result::ok)
+        .into_iter()
         .map(|line| {
             let line_ref: &str = &line;
             line_ref.try_into()
