@@ -31,15 +31,13 @@ impl Display for TableStats {
     }
 }
 
-fn binlog_record_from_capture(
-    captures: Captures,
-    op: BinlogOperation,
-) -> anyhow::Result<BinlogRecord> {
+fn binlog_record_from_capture(captures: Captures, op: BinlogOperation) -> anyhow::Result<BinlogRecord> {
     let schema_name: String = captures
         .get(1)
         .ok_or_else(|| anyhow::anyhow!("missing capture"))?
         .as_str()
         .to_owned();
+
     let table_name: String = captures
         .get(2)
         .ok_or_else(|| anyhow::anyhow!("missing capture"))?
@@ -58,12 +56,12 @@ impl TryFrom<&str> for BinlogRecord {
 
     fn try_from(value: &str) -> anyhow::Result<Self> {
         lazy_static! {
-            static ref RE_DELETE: Regex = Regex::new(r"### DELETE FROM `([^`]+)`\.`([^`]+)`$")
-                .expect("DELETE regex is invalid");
+            static ref RE_DELETE: Regex =
+                Regex::new(r"### DELETE FROM `([^`]+)`\.`([^`]+)`$").expect("DELETE regex is invalid");
             static ref RE_UPDATE: Regex =
                 Regex::new(r"### UPDATE `([^`]+)`\.`([^`]+)`$").expect("UPDATE regex is invalid");
-            static ref RE_INSERT: Regex = Regex::new(r"### INSERT INTO `([^`]+)`\.`([^`]+)`$")
-                .expect("INSERT regex is invalid");
+            static ref RE_INSERT: Regex =
+                Regex::new(r"### INSERT INTO `([^`]+)`\.`([^`]+)`$").expect("INSERT regex is invalid");
         }
 
         if let Some(captures) = RE_DELETE.captures(value) {
@@ -96,30 +94,26 @@ fn main() -> anyhow::Result<()> {
     println!("{} records parsed", binlog_records.len());
 
     let table_stats: HashMap<(String, String), TableStats> =
-        binlog_records
-            .into_iter()
-            .fold(HashMap::new(), |mut acc, record| {
-                {
-                    let table_name = record.table_name;
-                    let schema_name = record.schema_name;
-                    let key = (schema_name, table_name);
+        binlog_records.into_iter().fold(HashMap::new(), |mut acc, record| {
+            {
+                let table_name = record.table_name;
+                let schema_name = record.schema_name;
+                let key = (schema_name, table_name);
 
-                    let mut stats: TableStats = acc.get_mut(&key).map(|x| *x).unwrap_or_default();
-                    match record.op {
-                        BinlogOperation::Delete => stats.deletes += 1,
-                        BinlogOperation::Update => stats.updates += 1,
-                        BinlogOperation::Insert => stats.inserts += 1,
-                    }
-                    acc.insert(key, stats);
+                let mut stats: TableStats = acc.get_mut(&key).map(|x| *x).unwrap_or_default();
+                match record.op {
+                    BinlogOperation::Delete => stats.deletes += 1,
+                    BinlogOperation::Update => stats.updates += 1,
+                    BinlogOperation::Insert => stats.inserts += 1,
                 }
-                acc
-            });
+                acc.insert(key, stats);
+            }
+            acc
+        });
 
     table_stats
         .iter()
-        .for_each(|((schema_name, table_name), stats)| {
-            println!("{schema_name}.{table_name}: {stats}")
-        });
+        .for_each(|((schema_name, table_name), stats)| println!("{schema_name}.{table_name}: {stats}"));
 
     Ok(())
 }
