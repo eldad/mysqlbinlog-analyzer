@@ -91,7 +91,7 @@ fn main() -> anyhow::Result<()> {
         .filter_map(Result::ok)
         .collect();
 
-    println!("{} records parsed", binlog_records.len());
+    eprintln!("{} records parsed", binlog_records.len());
 
     let table_stats: HashMap<(String, String), TableStats> =
         binlog_records.into_iter().fold(HashMap::new(), |mut acc, record| {
@@ -111,9 +111,13 @@ fn main() -> anyhow::Result<()> {
             acc
         });
 
-    table_stats
-        .iter()
-        .for_each(|((schema_name, table_name), stats)| println!("{schema_name}.{table_name}: {stats}"));
+    println!("schema_name,table_name,inserts,updates,deletes");
+    table_stats.iter().for_each(|((schema_name, table_name), stats)| {
+        println!(
+            "{schema_name},{table_name},{},{},{}",
+            stats.inserts, stats.updates, stats.deletes
+        )
+    });
 
     Ok(())
 }
