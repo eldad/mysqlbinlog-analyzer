@@ -1,9 +1,11 @@
 use std::io::stdin;
 
-mod binlog;
-use binlog::*;
+use clap::{Parser, Subcommand};
 
+mod binlog;
 mod tablestats;
+
+use binlog::*;
 use tablestats::*;
 
 fn binlog_records_from_stdin() -> Vec<BinlogRecord> {
@@ -18,12 +20,26 @@ fn binlog_records_from_stdin() -> Vec<BinlogRecord> {
         .filter_map(Result::ok)
         .collect()
 }
+#[derive(Subcommand, Debug)]
+#[command()]
+enum Mode {
+    Stats,
+    EmptyUpdates,
+}
 
-fn main() -> anyhow::Result<()> {
-    let binlog_records = binlog_records_from_stdin();
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None, help_template = "
+{before-help}{name} {version}
+{author-with-newline}{about-with-newline}
+{usage-heading} {usage}
 
-    eprintln!("{} records parsed", binlog_records.len());
+{all-args}{after-help}")]
+struct Args {
+    #[command(subcommand)]
+    mode: Option<Mode>,
+}
 
+fn stats(binlog_records: &[BinlogRecord]) {
     let table_stats = tablestats_from_binlog_records(&binlog_records);
 
     println!("schema_name,table_name,inserts,updates,deletes");
@@ -33,6 +49,19 @@ fn main() -> anyhow::Result<()> {
             stats.inserts, stats.updates, stats.deletes
         )
     });
+}
+
+fn main() -> anyhow::Result<()> {
+    let args = Args::parse();
+
+    let binlog_records = binlog_records_from_stdin();
+
+    eprintln!("{} records parsed", binlog_records.len());
+
+    match args.mode.unwrap_or(Mode::Stats) {
+        Mode::Stats => stats(&binlog_records),
+        Mode::EmptyUpdates => todo!(),
+    }
 
     Ok(())
 }
