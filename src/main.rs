@@ -1,30 +1,25 @@
-use std::io::stdin;
-
 use clap::{Parser, Subcommand};
 
 mod binlog;
+mod binlog_empty_upates;
+mod binlog_stats;
 mod tablestats;
 
-use binlog::*;
-use tablestats::*;
-
-fn binlog_records_from_stdin() -> Vec<BinlogRecord> {
-    stdin()
-        .lines()
-        .filter_map(Result::ok)
-        .into_iter()
-        .map(|line| {
-            let line_ref: &str = &line;
-            line_ref.try_into()
-        })
-        .filter_map(Result::ok)
-        .collect()
-}
 #[derive(Subcommand, Debug)]
 #[command()]
 enum Mode {
     Stats,
-    EmptyUpdates,
+    EmptyUpdates {
+        table_name: String,
+
+        // List of ignored index (e.g. timestamp fields)
+        #[arg(long)]
+        ignore: Vec<usize>,
+
+        /// ID column index
+        #[arg(long)]
+        id: Vec<usize>,
+    },
 }
 
 #[derive(Parser, Debug)]
@@ -39,28 +34,17 @@ struct Args {
     mode: Option<Mode>,
 }
 
-fn stats(binlog_records: &[BinlogRecord]) {
-    let table_stats = tablestats_from_binlog_records(&binlog_records);
-
-    println!("schema_name,table_name,inserts,updates,deletes");
-    table_stats.iter().for_each(|(&(schema_name, table_name), &stats)| {
-        println!(
-            "{schema_name},{table_name},{},{},{}",
-            stats.inserts, stats.updates, stats.deletes
-        )
-    });
-}
-
 fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
-    let binlog_records = binlog_records_from_stdin();
-
-    eprintln!("{} records parsed", binlog_records.len());
-
     match args.mode.unwrap_or(Mode::Stats) {
-        Mode::Stats => stats(&binlog_records),
-        Mode::EmptyUpdates => todo!(),
+        Mode::Stats => binlog_stats::stats(),
+        Mode::EmptyUpdates { table_name, ignore, id } => {
+            if id.len() == 0 {
+                return Err(anyhow::anyhow!("must specify at least one ID column"));
+            }
+            binlog_empty_upates::empty_updates(&table_name, ignore, id)?
+        },
     }
 
     Ok(())

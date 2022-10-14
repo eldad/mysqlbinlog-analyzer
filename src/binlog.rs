@@ -1,5 +1,7 @@
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum BinlogOperation {
     Delete,
     Update,
@@ -62,5 +64,16 @@ impl TryFrom<&str> for BinlogRecord {
         }
 
         Err(anyhow::anyhow!("not a IUD operation record"))
+    }
+}
+
+impl BinlogOperation {
+    pub(crate) fn is_opposite(&self, op: BinlogOperation) -> bool {
+        match (self, op) {
+            (BinlogOperation::Insert, BinlogOperation::Delete) | (BinlogOperation::Delete, BinlogOperation::Insert) => {
+                true
+            }
+            _ => false,
+        }
     }
 }
