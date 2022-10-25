@@ -23,9 +23,11 @@ fn extract_field_value(line: &str) -> Option<(usize, String)> {
 
     RE.captures(line)
         .and_then(|captures| match (captures.get(1), (captures.get(2))) {
-            (Some(index), Some(value)) => {
-                index.as_str().parse::<usize>().ok().map(|index| (index, value.as_str().to_owned()))
-            }
+            (Some(index), Some(value)) => index
+                .as_str()
+                .parse::<usize>()
+                .ok()
+                .map(|index| (index, value.as_str().to_owned())),
             _ => None,
         })
 }
@@ -78,8 +80,7 @@ pub fn empty_updates(table_name: &str, ignore: Vec<usize>, key_columns: Vec<usiz
                 // Get field values
                 let mut field_values = HashMap::<usize, String>::new();
                 loop {
-                    let field_value = next_valid_stdlin_line()
-                        .and_then(|line| extract_field_value(&line));
+                    let field_value = next_valid_stdlin_line().and_then(|line| extract_field_value(&line));
 
                     match field_value {
                         Some((k, v)) => {
