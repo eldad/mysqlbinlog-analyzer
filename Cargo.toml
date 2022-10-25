@@ -6,7 +6,7 @@ authors = ["Eldad Zack"]
 description = "Analyzes the MySQL binlog from the decoded text output"
 
 [dependencies]
-anyhow = "1.0.65"
+anyhow = "1.0.66"
 clap = { version = "4.0.14", features = ["derive", "cargo"] }
 lazy_static = "1.4.0"
 regex = "1.6.0"
