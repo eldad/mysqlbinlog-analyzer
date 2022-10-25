@@ -84,12 +84,11 @@ pub fn empty_updates(table_name: &str, ignore: Vec<usize>, key_columns: Vec<usiz
                 let mut field_values = HashMap::<usize, String>::new();
                 loop {
                     let field_value = next_valid_stdlin_line()
-                        .map(|line| extract_field_value(&line))
-                        .flatten();
+                        .and_then(|line| extract_field_value(&line));
 
                     match field_value {
                         Some((k, v)) => {
-                            if ignore.iter().find(|&column_number| k == *column_number).is_none() {
+                            if !ignore.iter().any(|column_number| k == *column_number) {
                                 field_values.insert(k, v);
                             }
                         }
@@ -100,7 +99,7 @@ pub fn empty_updates(table_name: &str, ignore: Vec<usize>, key_columns: Vec<usiz
                 let mut key = Vec::<String>::new();
                 for key_column in &key_columns {
                     let key_value = field_values
-                        .remove(&key_column)
+                        .remove(key_column)
                         .ok_or_else(|| anyhow::anyhow!("id column missing: {key_column}"))?;
                     key.push(key_value);
                 }
