@@ -40,7 +40,7 @@ fn main() -> anyhow::Result<()> {
     match args.mode.unwrap_or(Mode::Stats) {
         Mode::Stats => binlog_stats::stats(),
         Mode::EmptyUpdates { table_name, ignore, id } => {
-            if id.len() == 0 {
+            if id.is_empty() {
                 return Err(anyhow::anyhow!("must specify at least one ID column"));
             }
             binlog_empty_upates::empty_updates(&table_name, ignore, id)?
