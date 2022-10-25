@@ -1,6 +1,6 @@
-use std::{fmt::Display, collections::HashMap};
+use std::{collections::HashMap, fmt::Display};
 
-use crate::binlog::{BinlogRecord, BinlogOperation};
+use crate::binlog::{BinlogOperation, BinlogRecord};
 
 #[derive(Default, Clone, Copy)]
 pub struct TableStats {

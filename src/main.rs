@@ -44,7 +44,7 @@ fn main() -> anyhow::Result<()> {
                 return Err(anyhow::anyhow!("must specify at least one ID column"));
             }
             binlog_empty_upates::empty_updates(&table_name, ignore, id)?
-        },
+        }
     }
 
     Ok(())

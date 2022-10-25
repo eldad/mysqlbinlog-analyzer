@@ -37,7 +37,7 @@ fn extract_field_value(line: &str) -> Option<(usize, String)> {
 
 struct RowChangeRecord {
     operation: BinlogOperation,
-    fields: HashMap::<usize, String>,
+    fields: HashMap<usize, String>,
 }
 
 fn next_valid_stdlin_line() -> Option<String> {
@@ -74,8 +74,8 @@ pub fn empty_updates(table_name: &str, ignore: Vec<usize>, key_columns: Vec<usiz
                 }
 
                 // Look for ### SET or WHERE marker
-                let has_set_marker = next_valid_stdlin_line()
-                    .map_or_else(|| false, |line| line == "### SET" || line == "### WHERE"); // TODO: SET for INSERT, WHERE for DELETE
+                let has_set_marker =
+                    next_valid_stdlin_line().map_or_else(|| false, |line| line == "### SET" || line == "### WHERE"); // TODO: SET for INSERT, WHERE for DELETE
                 if !has_set_marker {
                     return Err(anyhow::anyhow!("marker missing after operation found"));
                 };
@@ -99,7 +99,9 @@ pub fn empty_updates(table_name: &str, ignore: Vec<usize>, key_columns: Vec<usiz
 
                 let mut key = Vec::<String>::new();
                 for key_column in &key_columns {
-                    let key_value = field_values.remove(&key_column).ok_or_else(|| anyhow::anyhow!("id column missing: {key_column}"))?;
+                    let key_value = field_values
+                        .remove(&key_column)
+                        .ok_or_else(|| anyhow::anyhow!("id column missing: {key_column}"))?;
                     key.push(key_value);
                 }
 
@@ -116,7 +118,13 @@ pub fn empty_updates(table_name: &str, ignore: Vec<usize>, key_columns: Vec<usiz
                         records.remove(&key);
                     }
                 } else {
-                    records.insert(key, RowChangeRecord { fields: field_values, operation: op });
+                    records.insert(
+                        key,
+                        RowChangeRecord {
+                            fields: field_values,
+                            operation: op,
+                        },
+                    );
                 }
             }
         } else {
