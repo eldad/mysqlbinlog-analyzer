@@ -4,7 +4,7 @@ Basic MySQL binlog analyzer that parses the binlog verbose format and outputs in
 
 ## Usage
 
-> NOTE: The tool has limited functionality at the moment - I only implemented what I needed.
+> NOTE: The tool has limited functionality at the moment - I only implemented what I needed so far.
 
 Pipe the output of `mysqlbinlog` (see below) to this tool.
 It can generate simple stats or do an "empty updates" check (matching INSERTs and DELETEs).
@@ -24,6 +24,26 @@ Commands:
 Options:
   -h, --help     Print help information
   -V, --version  Print version information
+```
+
+### Empty Updates Check
+
+Empty updates check only examines INSERTs and DELETEs to a certain table.
+
+Use the `--id` parameter (column index number as seen in the binlog) to specify the match criteria for the records. `--id` supports composite indices.
+
+Use the `--ignore` parameter to ignore fields such as automatically updated columns (e.g. "updated" timestamp column). multiple columns can be specified.
+
+```
+Usage: mysqlbinlog-analyzer empty-updates [OPTIONS] <TABLE_NAME>
+
+Arguments:
+  <TABLE_NAME>
+
+Options:
+      --ignore <IGNORE>
+      --id <ID>          ID column index
+  -h, --help             Print help information
 ```
 
 ## mysqlbinlog
