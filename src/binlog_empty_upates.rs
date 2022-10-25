@@ -22,13 +22,12 @@ fn extract_field_value(line: &str) -> Option<(usize, String)> {
     }
 
     RE.captures(line)
-        .map(|captures| match (captures.get(1), (captures.get(2))) {
+        .and_then(|captures| match (captures.get(1), (captures.get(2))) {
             (Some(index), Some(value)) => {
                 index.as_str().parse::<usize>().ok().map(|index| (index, value.as_str().to_owned()))
             }
             _ => None,
         })
-        .flatten()
 }
 
 struct RowChangeRecord {
