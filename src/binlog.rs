@@ -69,6 +69,9 @@ impl TryFrom<&str> for BinlogRecord {
 
 impl BinlogOperation {
     pub(crate) fn is_opposite(&self, op: BinlogOperation) -> bool {
-        matches!((self, op), (BinlogOperation::Insert, BinlogOperation::Delete) | (BinlogOperation::Delete, BinlogOperation::Insert))
+        matches!(
+            (self, op),
+            (BinlogOperation::Insert, BinlogOperation::Delete) | (BinlogOperation::Delete, BinlogOperation::Insert)
+        )
     }
 }
