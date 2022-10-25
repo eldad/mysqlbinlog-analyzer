@@ -2,6 +2,30 @@
 
 Basic MySQL binlog analyzer that parses the binlog verbose format and outputs insert/update/delete statistics for each table.
 
+## Usage
+
+> NOTE: The tool has limited functionality at the moment - I only implemented what I needed.
+
+Pipe the output of `mysqlbinlog` (see below) to this tool.
+It can generate simple stats or do an "empty updates" check (matching INSERTs and DELETEs).
+
+```
+mysqlbinlog-analyzer 0.1.0
+Eldad Zack
+Analyzes the MySQL binlog from the decoded text output
+
+Usage: mysqlbinlog-analyzer [COMMAND]
+
+Commands:
+  stats
+  empty-updates
+  help           Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help     Print help information
+  -V, --version  Print version information
+```
+
 ## mysqlbinlog
 
 Recommended invocation:
