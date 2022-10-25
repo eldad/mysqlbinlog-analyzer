@@ -1,4 +1,4 @@
-# mysqlbinglog-analyzer
+# mysqlbinlog-analyzer
 
 Basic MySQL binlog analyzer that parses the binlog verbose format and outputs insert/update/delete statistics for each table.
 
