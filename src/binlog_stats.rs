@@ -6,7 +6,6 @@ fn binlog_records_from_stdin() -> Vec<BinlogRecord> {
     stdin()
         .lines()
         .filter_map(Result::ok)
-        .into_iter()
         .map(|line| {
             let line_ref: &str = &line;
             line_ref.try_into()
