@@ -5,7 +5,7 @@ use crate::{binlog::BinlogRecord, tablestats::tablestats_from_binlog_records};
 fn binlog_records_from_stdin() -> Vec<BinlogRecord> {
     stdin()
         .lines()
-        .filter_map(Result::ok)
+        .map_while(Result::ok)
         .map(|line| {
             let line_ref: &str = &line;
             line_ref.try_into()
