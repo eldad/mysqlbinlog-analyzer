@@ -7,6 +7,6 @@ description = "Analyzes the MySQL binlog from the decoded text output"
 
 [dependencies]
 anyhow = "1.0.71"
-clap = { version = "4.3.11", features = ["derive", "cargo"] }
+clap = { version = "4.3.12", features = ["derive", "cargo"] }
 lazy_static = "1.4.0"
 regex = "1.9.1"
