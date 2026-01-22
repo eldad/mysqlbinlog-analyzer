@@ -84,7 +84,7 @@ pub fn empty_updates(table_name: &str, ignore: Vec<usize>, key_columns: Vec<usiz
 
                     match field_value {
                         Some((k, v)) => {
-                            if !ignore.iter().any(|column_number| k == *column_number) {
+                            if !ignore.contains(&k) {
                                 field_values.insert(k, v);
                             }
                         }
